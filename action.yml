@@ -1,5 +1,5 @@
-name: 'Update Relisio Product Portfolio'
-description: 'Create/Update a Relisio product from GitHub'
+name: 'Publish a new Relisio Project'
+description: 'Create a Relisio project from GitHub'
 inputs:
     relisio-url:
         description: 'Relisio base url (only for enterprise installations)'
@@ -11,26 +11,33 @@ inputs:
     workspace-path:
         description: 'Path of the Workspace where to publish the Product'
         required: true
-    product-template-id:
-        description: 'ID of an existing product withing the workspace to clone as the base for this new product'
-        required: false
     product-id:
-        description: 'ID of an existing product (only if you want to update the existing product)'
-        required: false
-    product-name:
-        description: 'Name of the product'
+        description: 'ID of an existing product to include in the final release'
         required: true
-    product-scope:
-        description: 'Visibility of the product withing the workspace (private, internal or public)'
+    environment-name:
+        description: 'Name or query to match environments'
+        required: true
+    environment-type:
+        description: 'The type of environment to be included in the project (Development, Testing, QA, Training, Pre, Production, Unspecified, *)'
+        required: true
+        default: 'Unspecified'
+    version:
+        description: 'The version uniquely identifies the product for the specified environment. A common workflow could consider values like Git Tag, Release Name or more static and generic values like Alpha, Beta, Patch-N, etc'
+        required: true
+    project-scope:
+        description: 'Visibility of the project withing the workspace (private, internal or public)'
         required: true
         default: 'internal'
+    trigger-notifications:
+        description: 'It tells Relisio to notify all the interested actors of the new release. The notification includes all the authors, associated licensee and eventual internal contacts having email associated'
+        required: false
 outputs:
-    product-id:
-        description: 'ID of the Deployed Product'
-    public-url:
-        description: 'Public URL of the Deployed Product'
-    api-url:
-        description: 'API URL of the Deployed Product'
+    project-ids:
+        description: 'A string representing the ids of the created projects'
+    public-urls:
+        description: 'A string representing the public URLs of the created projects'
+    created-projects:
+        description: 'The number of created projects within this action'
 branding:
     icon: 'save'
     color: 'blue'
