@@ -33,11 +33,11 @@ inputs:
         required: false
 outputs:
     project-ids:
-        description: 'A string representing the ids of the created projects'
+        description: 'A string representing the ids of the created project(s)'
     public-urls:
-        description: 'A string representing the public URLs of the created projects'
+        description: 'A string representing the public URLs of the created project(s)'
     created-projects:
-        description: 'The number of created projects within this action'
+        description: 'The number of created project(s) within this action'
 branding:
     icon: 'save'
     color: 'blue'
