@@ -89,7 +89,7 @@ jobs:
         trigger-notifications: true
 ```
 
-## Create releases for the "tranining" environments
+## Create releases for the "training" environments
 The following example creates a release for the product **123456** for each **`Training`** environment present in the workspace.
 
 ```yaml
