@@ -65,13 +65,12 @@ jobs:
 ```
 
 ## Create multiple releases of the same product
-The following example assumes multiple environments are configured within the name **Dental clinic**. The type selector specifies the "*" value, telling Relisio to create a project for all the available **Dental clinic' environments**. <br/><br/>Separate communication will be created for each project, generating contextual emails.
+The following example assumes multiple environments are configured within the name **Dental clinic**. The type selector specifies the "**`*`**" value, telling Relisio to create a project for all the available **Dental clinic' environments**. <br/><br/>Separate communication will be created for each project, generating contextual emails.
 
 ```yaml
 on:
-  push:
-    tags:
-      - "v*"
+  release:
+    types: [published]
 
 jobs:
   deloy:
@@ -83,21 +82,46 @@ jobs:
         api-key: ${{ secrets.RELISIO_API_KEY }}
         workspace-path: ${{ secrets.RELISIO_WORKSPACE }}
         product-id: 123456
+        version: ${{ github.event.release.name }}
         project-scope: public
         environment-name: Dental clinic
         environment-type: *
+        trigger-notifications: true
+```
+
+## Create releases for the "tranining" environments
+The following example creates a release for the product **123456** for each **`Training`** environment present in the workspace.
+
+```yaml
+on:
+  release:
+    types: [published]
+
+jobs:
+  deloy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy As Relisio Product 
+      uses: Studio-41/relisio-project-action@v1
+      with:
+        api-key: ${{ secrets.RELISIO_API_KEY }}
+        workspace-path: ${{ secrets.RELISIO_WORKSPACE }}
+        product-id: 123456
+        version: ${{ github.event.release.name }}
+        project-scope: public
+        environment-type: training
         trigger-notifications: true
 ```
 <hr/>
 
 ### <img src="https://user-images.githubusercontent.com/11739105/156749223-0a34348c-2155-4599-8b51-778cb9c91d50.svg" alt="Artifact" width="32"> Work with Relisio Artefacts
 
-You can optionally configure your GitHub Workflow to upload **any artefact** as part of the new release (or product) using `Studio-41/relisio-artefact-action@v1` ([more details](https://github.com/Studio-41/relisio-artefact-action)).
+You can optionally configure your GitHub Workflow to upload **any artefact** as part of the new release (or product) using `Studio-41/relisio-artefact-action@v1` ([more details](https://github.com/marketplace/actions/upload-an-artefact-to-relisio)).
 
 
 ### <img src="https://user-images.githubusercontent.com/11739105/152799348-e70d55f4-3914-43cd-866f-f2b979071be2.svg" alt="Product" width="32"> Work with Relisio Products
 
-If you want to publish a new product as part of the release, use the Product action `Studio-41/relisio-product-action@v1` ([more details](https://github.com/Studio-41/relisio-product-action)).
+If you want to publish a new product as part of the release, use the Product action `Studio-41/relisio-product-action@v1` ([more details](https://github.com/marketplace/actions/update-relisio-product-portfolio)).
 
 <hr/>
 

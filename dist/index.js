@@ -48,27 +48,56 @@ function run() {
             if (!workspacePath) {
                 throw new Error('workspace-path is required');
             }
-            const productName = core.getInput('product-name');
-            const productScope = core.getInput('product-scope');
+            const productId = core.getInput('product-id');
+            if (!productId) {
+                throw new Error('product-id is required');
+            }
+            const environmentName = core.getInput('environment-name');
+            const environmentType = core.getInput('environment-type');
+            const availableEnvironmentTypes = [
+                'Development',
+                'Testing',
+                'QA',
+                'Training',
+                'Pre',
+                'Production',
+                'Unspecified',
+                '*'
+            ].map(x => x.toLowerCase());
+            if (environmentType &&
+                environmentType.length > 0 &&
+                !availableEnvironmentTypes.includes(environmentType.toLowerCase())) {
+                throw new Error(`environment-type must be empty or one of ${availableEnvironmentTypes.join(', ')}`);
+            }
+            if ((!environmentName && environmentType) ||
+                ['*', 'unspecified'].includes(environmentType)) {
+                throw new Error('environment-name is required if environment-type is "*" or "unspecified"');
+            }
+            const version = core.getInput('version');
+            if (!version) {
+                throw new Error('version is required');
+            }
+            const projectScope = core.getInput('project-scope');
+            if (!projectScope) {
+                throw new Error('product-template-id or product-name is required');
+            }
             const relisoUrl = core.getInput('relisio-url');
             if (!relisoUrl) {
                 throw new Error('relisio-url is required');
             }
-            const originalId = core.getInput('product-template-id');
-            if (!originalId && !productName) {
-                throw new Error('product-template-id or product-name is required');
-            }
-            const url = `${relisoUrl}/api/v1/workspaces/${workspacePath}/products`;
-            const { _id, name = '' } = yield (0, net_1.post)(url, apiKey, JSON.stringify({
-                originalId,
-                productName,
-                productScope
+            const triggerNotifications = core.getInput('trigger-notifications') !== undefined;
+            const url = `${relisoUrl}/api/v1/workspaces/${workspacePath}/projects`;
+            const { projectIds = [], publicUrls = [], createdProjects = 0 } = yield (0, net_1.post)(url, apiKey, JSON.stringify({
+                triggerNotifications,
+                projectScope,
+                version,
+                environmentType,
+                environmentName,
+                productId
             }));
-            const apiUrl = `${relisoUrl}/workspaces/${workspacePath}/products/${name}`;
-            const publicUrl = `${relisoUrl}/${workspacePath}/${name}`;
-            core.setOutput('product-id', _id);
-            core.setOutput('api-url', apiUrl);
-            core.setOutput('public-url', publicUrl);
+            core.setOutput('project-ids', projectIds.join('\n'));
+            core.setOutput('public-urls', publicUrls.join('\n'));
+            core.setOutput('created-projects', createdProjects);
         }
         catch (error) {
             core.debug(`Deployment Failed with Error: ${error}`);
