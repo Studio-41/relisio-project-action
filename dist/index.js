@@ -52,8 +52,8 @@ function run() {
             if (!productId) {
                 throw new Error('product-id is required');
             }
-            const environmentName = core.getInput('environment-name');
-            const environmentType = core.getInput('environment-type');
+            const environmentName = core.getInput('environment-name') || '';
+            const environmentType = core.getInput('environment-type') || 'Unspecified';
             const availableEnvironmentTypes = [
                 'Development',
                 'Testing',
@@ -64,13 +64,17 @@ function run() {
                 'Unspecified',
                 '*'
             ].map(x => x.toLowerCase());
-            if (environmentType &&
-                environmentType.length > 0 &&
+            if (environmentType.length > 0 &&
                 !availableEnvironmentTypes.includes(environmentType.toLowerCase())) {
                 throw new Error(`environment-type must be empty or one of ${availableEnvironmentTypes.join(', ')}`);
             }
             if ((!environmentName && environmentType) ||
                 ['*', 'unspecified'].includes(environmentType)) {
+                // this is a special case:
+                // deploy against all the environments of the product is not supported
+                // by this action, however, it is implemented at API level.
+                // We avoid this case to prevent the user from accidentally
+                // generate a massive amount of releases from the CI.
                 throw new Error('environment-name is required if environment-type is "*" or "unspecified"');
             }
             const version = core.getInput('version');
@@ -86,8 +90,8 @@ function run() {
                 throw new Error('relisio-url is required');
             }
             const triggerNotifications = core.getInput('trigger-notifications') !== undefined;
-            const url = `${relisoUrl}/api/v1/workspaces/${workspacePath}/projects`;
-            const { projectIds = [], publicUrls = [], createdProjects = 0 } = yield (0, net_1.post)(url, apiKey, JSON.stringify({
+            const url = `${relisoUrl}/api/v1/workspaces/${workspacePath}/project-factory`;
+            const { projectIds = [] } = yield (0, net_1.post)(url, apiKey, JSON.stringify({
                 triggerNotifications,
                 projectScope,
                 version,
@@ -95,9 +99,10 @@ function run() {
                 environmentName,
                 productId
             }));
+            const publicUrls = projectIds.map(x => `${relisoUrl}/${workspacePath}/${x}`);
             core.setOutput('project-ids', projectIds.join('\n'));
             core.setOutput('public-urls', publicUrls.join('\n'));
-            core.setOutput('created-projects', createdProjects);
+            core.setOutput('created-projects', projectIds.length);
         }
         catch (error) {
             core.debug(`Deployment Failed with Error: ${error}`);

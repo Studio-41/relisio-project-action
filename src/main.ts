@@ -19,8 +19,8 @@ async function run(): Promise<void> {
       throw new Error('product-id is required')
     }
 
-    const environmentName = core.getInput('environment-name')
-    const environmentType = core.getInput('environment-type')
+    const environmentName = core.getInput('environment-name') || ''
+    const environmentType = core.getInput('environment-type') || 'Unspecified'
     const availableEnvironmentTypes = [
       'Development',
       'Testing',
@@ -32,7 +32,6 @@ async function run(): Promise<void> {
       '*'
     ].map(x => x.toLowerCase())
     if (
-      environmentType &&
       environmentType.length > 0 &&
       !availableEnvironmentTypes.includes(environmentType.toLowerCase())
     ) {
@@ -47,6 +46,11 @@ async function run(): Promise<void> {
       (!environmentName && environmentType) ||
       ['*', 'unspecified'].includes(environmentType)
     ) {
+      // this is a special case:
+      // deploy against all the environments of the product is not supported
+      // by this action, however, it is implemented at API level.
+      // We avoid this case to prevent the user from accidentally
+      // generate a massive amount of releases from the CI.
       throw new Error(
         'environment-name is required if environment-type is "*" or "unspecified"'
       )
@@ -70,13 +74,9 @@ async function run(): Promise<void> {
     const triggerNotifications =
       core.getInput('trigger-notifications') !== undefined
 
-    const url = `${relisoUrl}/api/v1/workspaces/${workspacePath}/projects`
+    const url = `${relisoUrl}/api/v1/workspaces/${workspacePath}/project-factory`
 
-    const {
-      projectIds = [],
-      publicUrls = [],
-      createdProjects = 0
-    } = await post(
+    const {projectIds = []} = await post(
       url,
       apiKey,
       JSON.stringify({
@@ -89,9 +89,11 @@ async function run(): Promise<void> {
       })
     )
 
+    const publicUrls = projectIds.map(x => `${relisoUrl}/${workspacePath}/${x}`)
+
     core.setOutput('project-ids', projectIds.join('\n'))
     core.setOutput('public-urls', publicUrls.join('\n'))
-    core.setOutput('created-projects', createdProjects)
+    core.setOutput('created-projects', projectIds.length)
   } catch (error) {
     core.debug(`Deployment Failed with Error: ${error}`)
     core.setFailed(`Deployment Failed with Error: ${error}`)
