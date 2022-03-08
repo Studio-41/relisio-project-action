@@ -68,8 +68,9 @@ function run() {
                 !availableEnvironmentTypes.includes(environmentType.toLowerCase())) {
                 throw new Error(`environment-type must be empty or one of ${availableEnvironmentTypes.join(', ')}`);
             }
-            if ((!environmentName && environmentType) ||
-                ['*', 'unspecified'].includes(environmentType)) {
+            if (!environmentName &&
+                environmentType &&
+                ['*', 'unspecified'].includes(environmentType.toLocaleLowerCase())) {
                 // this is a special case:
                 // deploy against all the environments of the product is not supported
                 // by this action, however, it is implemented at API level.

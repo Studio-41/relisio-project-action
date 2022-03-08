@@ -43,8 +43,9 @@ async function run(): Promise<void> {
     }
 
     if (
-      (!environmentName && environmentType) ||
-      ['*', 'unspecified'].includes(environmentType)
+      !environmentName &&
+      environmentType &&
+      ['*', 'unspecified'].includes(environmentType.toLocaleLowerCase())
     ) {
       // this is a special case:
       // deploy against all the environments of the product is not supported
