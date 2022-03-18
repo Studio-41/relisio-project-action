@@ -92,8 +92,8 @@ async function run(): Promise<void> {
 
     const publicUrls = projectIds.map(x => `${relisoUrl}/${workspacePath}/${x}`)
 
-    core.setOutput('project-ids', projectIds.join('\n'))
-    core.setOutput('public-urls', publicUrls.join('\n'))
+    core.setOutput('project-ids', projectIds.join(','))
+    core.setOutput('public-urls', publicUrls.join(','))
     core.setOutput('created-projects', projectIds.length)
   } catch (error) {
     core.debug(`Deployment Failed with Error: ${error}`)

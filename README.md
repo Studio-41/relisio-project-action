@@ -34,8 +34,8 @@ Use it to create new deployment projects and release your products within your w
 
 |id|description|
 |---|:---|
-|project-ids|A string representing the ids of the created projects.
-|public-urls|A string representing the public URLs of the created projects (visible depending on the selected `scope`)|
+|project-ids|A string representing the ids of the created projects (`id1, id2, ..., idN`).
+|public-urls|A string representing the public URLs of the created projects (`url1, url2, ..., urlN`) (visible depending on the selected `scope`)|
 |created-projects|The number of created projects within this action|
 
 ## Deploy a new project
